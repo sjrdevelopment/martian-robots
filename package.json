@@ -1,0 +1,20 @@
+{
+  "name": "martian-robots",
+  "version": "1.0.0",
+  "description": "A command-line interface for calculating martian robot end positions based on a series of movement instructions",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sjrdevelopment/martian-robots.git"
+  },
+  "author": "Stuart Robinson (stuj.robinson@gmail.com)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sjrdevelopment/martian-robots/issues"
+  },
+  "homepage": "https://github.com/sjrdevelopment/martian-robots#readme"
+}
