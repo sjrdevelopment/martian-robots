@@ -33,13 +33,22 @@ const moveForwards = (coordinates, heading) => {
     }
 
     if (
+        offGridPoints.find(
+            (coord) =>
+                coord.x === newCoordinates.x && coord.y === newCoordinates.y
+        )
+    ) {
+        // ignore this, we;re about to lose the robot!
+        newCoordinates = { ...coordinates }
+    }
+    if (
         newCoordinates.y < 0 ||
         newCoordinates.x < 0 ||
         newCoordinates.y > gridSize.y ||
         newCoordinates.x > gridSize.x
     ) {
         console.log('LOST')
-        offGridPoints.push(coordinates) // add last known coordinates, not new ones
+        offGridPoints.push(newCoordinates) // add the coordinate that caused the robot to go off grid
         newCoordinates = { ...coordinates }
         lost = true
     }
