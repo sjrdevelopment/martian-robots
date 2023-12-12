@@ -40,7 +40,11 @@ const moveForwards = (coordinates, heading, offGridPoints, gridSize) => {
 
 const turnLeft = (heading, compassPoints) => {
     const reversedCompassPoints = compassPoints.slice(0).reverse()
-    const compassIndex = reversedCompassPoints.indexOf(heading)
+    const compassIndex = reversedCompassPoints.indexOf(heading.toUpperCase())
+
+    if (compassIndex < 0) {
+        throw new Error(`invalid compass point`)
+    }
     const newHeading =
         reversedCompassPoints[(compassIndex + 1) % reversedCompassPoints.length]
 
