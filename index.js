@@ -7,28 +7,44 @@ const allowedCommands = ['F', 'L', 'R']
 
 const compassPoints = ['N', 'E', 'S', 'W']
 
+const offGridPoints = []
+
 const readline = require('node:readline').createInterface({
     input: process.stdin,
     output: process.stdout,
 })
 
 const moveForwards = (coordinates, heading) => {
+    let newCoordinates = { ...coordinates }
+    let lost = false
     switch (heading) {
         case 'N':
-            coordinates.y += 1
+            newCoordinates.y += 1
             break
         case 'E':
-            coordinates.x += 1
+            newCoordinates.x += 1
             break
         case 'S':
-            coordinates.y -= 1
+            newCoordinates.y -= 1
             break
         case 'W':
-            coordinates.x -= 1
+            newCoordinates.x -= 1
             break
     }
 
-    return [coordinates, heading]
+    if (
+        newCoordinates.y < 0 ||
+        newCoordinates.x < 0 ||
+        newCoordinates.y > gridSize.y ||
+        newCoordinates.x > gridSize.x
+    ) {
+        console.log('LOST')
+        offGridPoints.push(coordinates) // add last known coordinates, not new ones
+        newCoordinates = { ...coordinates }
+        lost = true
+    }
+
+    return [newCoordinates, heading, lost]
 }
 
 const turnLeft = (heading) => {
@@ -64,16 +80,26 @@ const moveFromStartingPosition = (gridSize) => {
             readline.question('Enter command string: ', (command) => {
                 console.log(`Moving ${command}`)
 
+                if (command.length > 100) {
+                    console.error('Command is too long (max 100)')
+                    //TODO: throw error
+                    // TODO: put parameter constants in consts
+                }
+
+                let isLost = false
+
                 command.split('').forEach((command) => {
+                    console.log(isLost)
                     if (!allowedCommands.includes(command)) {
                         console.error(
                             'Command not allowed, skipping to next command'
                         )
+                    } else if (isLost) {
                     } else {
                         switch (command) {
                             case 'F':
                                 console.log('moving forwards')
-                                ;[currentCoordinates, currentHeading] =
+                                ;[currentCoordinates, currentHeading, isLost] =
                                     moveForwards(
                                         currentCoordinates,
                                         currentHeading
@@ -95,8 +121,12 @@ const moveFromStartingPosition = (gridSize) => {
                     }
                 })
 
-                console.log('final position:')
-                console.log(currentCoordinates, currentHeading)
+                console.log('final position: ')
+                console.log(
+                    `${currentCoordinates.x} ${
+                        currentCoordinates.y
+                    } ${currentHeading}${isLost ? ' LOST' : ''}`
+                )
                 moveFromStartingPosition(gridSize)
             })
         }
@@ -106,9 +136,17 @@ const moveFromStartingPosition = (gridSize) => {
 readline.question('Enter grid max coordinates: ', (gridMaxCoordinates) => {
     console.log(`Setting grid size ${gridMaxCoordinates}`)
 
-    const gridSizeCoordinates = gridMaxCoordinates.split(' ')
-    gridSize.x = gridSizeCoordinates[0]
-    gridSize.y = gridSizeCoordinates[1]
+    const gridSizeCoordinates = gridMaxCoordinates
+        .split(' ')
+        .map((coordinate) => parseInt(coordinate))
 
-    moveFromStartingPosition(gridSize)
+    if (gridSizeCoordinates[0] > 50 || gridSizeCoordinates[1] > 50) {
+        console.error('Exceeded allowed grid size')
+        //TODO: throw new error
+    } else {
+        gridSize.x = gridSizeCoordinates[0]
+        gridSize.y = gridSizeCoordinates[1]
+
+        moveFromStartingPosition(gridSize)
+    }
 })
