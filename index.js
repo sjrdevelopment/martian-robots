@@ -9,6 +9,9 @@ const compassPoints = ['N', 'E', 'S', 'W']
 
 const offGridPoints = []
 
+const commandSizeLimit = 100
+const coordinateSizeLimit = 50
+
 const readline = require('node:readline').createInterface({
     input: process.stdin,
     output: process.stdout,
@@ -73,7 +76,6 @@ const turnRight = (heading) => {
 }
 
 const moveFromStartingPosition = (gridSize) => {
-    // TODO: validate input string is letters and numbers, convert uppercase etc.
     readline.question(
         `Enter start position for next robot (within ${gridSize.x},${gridSize.y}): `,
         (startPosition) => {
@@ -89,9 +91,10 @@ const moveFromStartingPosition = (gridSize) => {
             readline.question('Enter command string: ', (command) => {
                 console.log(`Moving ${command}`)
 
-                if (command.length > 100) {
-                    console.error('Command is too long (max 100)')
-                    //TODO: throw error
+                if (command.length > commandSizeLimit) {
+                    throw new Error(
+                        `Command length exceeds limit of ${commandSizeLimit}`
+                    )
                     // TODO: put parameter constants in consts
                 }
 
@@ -103,8 +106,7 @@ const moveFromStartingPosition = (gridSize) => {
                         console.error(
                             'Command not allowed, skipping to next command'
                         )
-                    } else if (isLost) {
-                    } else {
+                    } else if (!isLost) {
                         switch (command) {
                             case 'F':
                                 console.log('moving forwards')
@@ -142,20 +144,36 @@ const moveFromStartingPosition = (gridSize) => {
     )
 }
 
-readline.question('Enter grid max coordinates: ', (gridMaxCoordinates) => {
-    console.log(`Setting grid size ${gridMaxCoordinates}`)
+readline.question(
+    'Enter grid max coordinates separated by a space: ',
+    (gridMaxCoordinates) => {
+        console.log(`Setting grid size ${gridMaxCoordinates}`)
 
-    const gridSizeCoordinates = gridMaxCoordinates
-        .split(' ')
-        .map((coordinate) => parseInt(coordinate))
+        const gridSizeCoordinates = gridMaxCoordinates
+            .split(' ')
+            .map((coordinate) => {
+                const returnVal = parseInt(coordinate)
+                console.log('return is')
+                console.log(returnVal)
+                if (isNaN(returnVal)) {
+                    throw new Error(`Invalid grid coordinate ${coordinate}`)
+                } else {
+                    return returnVal
+                }
+            })
 
-    if (gridSizeCoordinates[0] > 50 || gridSizeCoordinates[1] > 50) {
-        console.error('Exceeded allowed grid size')
-        //TODO: throw new error
-    } else {
-        gridSize.x = gridSizeCoordinates[0]
-        gridSize.y = gridSizeCoordinates[1]
+        if (
+            gridSizeCoordinates[0] > coordinateSizeLimit ||
+            gridSizeCoordinates[1] > coordinateSizeLimit
+        ) {
+            throw new Error(
+                `Exceeded allowed grid size of ${coordinateSizeLimit}x${coordinateSizeLimit}`
+            )
+        } else {
+            gridSize.x = gridSizeCoordinates[0]
+            gridSize.y = gridSizeCoordinates[1]
 
-        moveFromStartingPosition(gridSize)
+            moveFromStartingPosition(gridSize)
+        }
     }
-})
+)
