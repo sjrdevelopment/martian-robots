@@ -1,4 +1,8 @@
-const moveForwards = (coordinates, heading, offGridPoints, gridSize) => {
+const compassPoints = ['N', 'E', 'S', 'W']
+
+const offGridPoints = []
+
+const moveForward = (coordinates, heading, gridSize) => {
     let newCoordinates = { ...coordinates }
     let lost = false
     switch (heading) {
@@ -38,7 +42,7 @@ const moveForwards = (coordinates, heading, offGridPoints, gridSize) => {
     return [newCoordinates, lost]
 }
 
-const turnLeft = (heading, compassPoints) => {
+const turnLeft = (heading) => {
     const reversedCompassPoints = compassPoints.slice(0).reverse()
     const compassIndex = reversedCompassPoints.indexOf(heading.toUpperCase())
 
@@ -51,10 +55,15 @@ const turnLeft = (heading, compassPoints) => {
     return newHeading
 }
 
-const turnRight = (heading, compassPoints) => {
-    const compassIndex = compassPoints.indexOf(heading)
+const turnRight = (heading) => {
+    const compassIndex = compassPoints.indexOf(heading.toUpperCase())
+    if (compassIndex < 0) {
+        throw new Error(`invalid compass point`)
+    }
+
     const newHeading = compassPoints[(compassIndex + 1) % compassPoints.length]
 
     return newHeading
 }
-export { turnRight, turnLeft, moveForwards }
+
+export { turnRight, turnLeft, moveForward }
